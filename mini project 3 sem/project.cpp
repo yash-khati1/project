@@ -1,11 +1,7 @@
 #include<iostream>
 #include<conio.h>
-#include<stdio.h>
 #include<fstream>
-#include<iomanip>
-#include<conio.h>
 #include<windows.h>
-#include<stdlib.h>
 #include<string>
 using namespace std;
 
@@ -63,32 +59,31 @@ void gotoxy(int x,int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coordinates);
 }
 
-void graphics::border(int xLenS = 2, int yLenS = 2,int xLenE = 80, int yLenE = 30 )
+void graphics::border(int xLenS = 2, int yLenS = 2,int xLenE = 84, int yLenE = 32 )
 {
-	gotoxy(xLenS,yLenS);printf("%c",201);
+	gotoxy(xLenS,yLenS);printf("%c",178);
 
-	gotoxy(xLenS,yLenE);printf("%c",200);
+	gotoxy(xLenS,yLenE);printf("%c",178);
 
     for(int i=xLenS+1;i<=xLenE-1;i++)         //Top and Bottom Border line
     {
         Sleep(5);
         gotoxy(i,yLenS);
-        printf("%c",205);
+        printf("%c",178);
         gotoxy(i,yLenE);
-        printf("%c",205);
+        printf("%c",178);
 
     }
-    gotoxy(xLenE,yLenS);printf("%c",187);
-    gotoxy(xLenE,yLenE);printf("%c",188);
+    gotoxy(xLenE,yLenS);printf("%c",178);
+    gotoxy(xLenE,yLenE);printf("%c",178);
     for(int i=yLenS+1;i<=yLenE-1;i++)         //Left and Right Border Line
     {
         Sleep(5);
         gotoxy(xLenS, i);
-        printf("%c",186);
+        printf("%c",178);
         gotoxy(xLenE, i);
-        printf("%c",186);
+        printf("%c",178);
     }
-    printf("\n\n");
 }
 /*
  _______________________________________
@@ -98,6 +93,7 @@ void graphics::border(int xLenS = 2, int yLenS = 2,int xLenE = 80, int yLenE = 3
 void user_login::login()
 {
     system("cls");
+    m:
     graphics g;
     g.border();
     char ch;
@@ -129,21 +125,21 @@ void user_login::login()
                 printf("%c",254);
                 Sleep(200);
             }
-            system("cls");
         }
         else
         {
             gotoxy(20,12);
             cout<<"Access Denied(Incorrect Password) !! ";
             gotoxy(32,14);
-            cout<<"Exiting ";
+            cout<<"Try again ";
             char c;
             for(int i=0;i<6;i++)
             {
                 printf("%c",254);
-                Sleep(500);
+                Sleep(300);
             }
-            exit(1);
+            system("cls");
+            goto m;
         }
     }
     else
@@ -151,14 +147,15 @@ void user_login::login()
         gotoxy(20,10);
         cout<<"Access Denied(Incorrect User name) ";
         gotoxy(30,13);
-        cout<<"Exiting ";
+        cout<<"Try again ";
         char c;
         for(int i=0;i<6;i++)
         {
             printf("%c",254);
-            Sleep(100);
+            Sleep(300);
         }
-        exit(1);
+        system("cls");
+        goto m;
     }
 }
 
@@ -226,17 +223,17 @@ void employee::showdata()
         gotoxy(10,17);
         cout<<"Designation : "<<desig;
         gotoxy(10,19);
-        cout<<"Basic Pay : "<<basicPay;
+        cout<<"Basic Pay : Rs "<<basicPay;
         gotoxy(50,9);
-        cout<<"Conveyence Allowance :"<<(basicPay/2);
+        cout<<"Conveyence Allowance : Rs "<<(basicPay/2);
         gotoxy(50,11);
-        cout<<"House Rent Allowance: "<<(basicPay/10);
+        cout<<"House Rent Allowance: Rs "<<(basicPay/10);
         gotoxy(50,13);
-        cout<<"Medical Reimbursement :"<<medicalReimbursement;
+        cout<<"Medical Reimbursement : Rs "<<medicalReimbursement;
         gotoxy(50,15);
-        cout<<"Other Allownances :"<<otherAllowance;
+        cout<<"Other Allownances : Rs "<<otherAllowance;
         gotoxy(50,17);
-        cout<<"Net Pay: "<<npay;
+        cout<<"Net Pay: Rs "<<npay;
     }
 
 void employee::showpayData(int j)
@@ -254,10 +251,10 @@ void employee::showpayData(int j)
         gotoxy(65,j);
         cout<<npay;
 }
-//<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-//             USE OF FSTREAM & DECLARING OBJECTS               <>
-//<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
+/*____________________
+ |  DECLARING OBJECT  |
+ |____________________|
+*/
 fstream fe;
 employee ep;
 
@@ -284,9 +281,9 @@ void add_Employee()
 |  FUNCTION TO SEARCH EMPLOYEE   |
 |________________________________|
 */
-void searchEmp(int n)
+bool search_Emp(int n)
 {
-    int flag=0;
+    bool flag=false;
     fe.open("employee.dat",ios::in);
     while(fe.read((char*)&ep,sizeof(employee)))
     {
@@ -295,16 +292,20 @@ void searchEmp(int n)
             gotoxy(35,7);
             cout<<"SEARCH RESULT";
             ep.showdata();
-            flag=1;
+            flag=true;
         }
     }
     fe.close();
-    if(flag==0)
+    if(flag==false)
     {
-        gotoxy(20,12);
+        system("cls");
+        graphics g;
+        g.border();
+        gotoxy(25,15);
         cout<<"Record doesn't exist!!!";
     }    
     getch();
+    return flag;
 }
 
 /*____________________________
@@ -336,7 +337,7 @@ void modifyEmployee()
             int pos=-1*sizeof(ep);
             fe.seekp(pos,ios::cur);
             fe.write((char*)&ep,sizeof(employee));
-            gotoxy(25,22);
+            gotoxy(30,22);
             cout<<" Record Updated!!!";
             found=1;
         }
@@ -367,24 +368,26 @@ void deleteEmployee()
     cout<<"Enter Employee ID to be Deleted : ";
     cin>>num;
     system("cls");
-    searchEmp(num);
-    fe.open("employee.dat",ios::in|ios::out);
-    fstream fe2;
-    fe2.open("Temp.dat",ios::out);
-    fe.seekg(0,ios::beg);
-    while(fe.read((char*)&ep,sizeof(employee)))
+    if(search_Emp(num))
     {
-        if(ep.returnId()!=num)
+        fe.open("employee.dat",ios::in|ios::out);
+        fstream ft;
+        ft.open("Temp.dat",ios::out);
+        ft.seekg(0,ios::beg);
+        while(fe.read((char*)&ep,sizeof(employee)))
         {
-            fe2.write((char*)&ep,sizeof(employee));
+            if(ep.returnId()!=num)
+            {
+                ft.write((char*)&ep,sizeof(employee));
+            }
         }
-    }
-    fe2.close();
-    fe.close();
-    remove("employee.dat");
-    rename("Temp.dat","employee.dat");
-    gotoxy(30,22);
-    cout<<"Record Deleted!!!";
+        ft.close();
+        fe.close();
+        remove("employee.dat");
+        rename("Temp.dat","employee.dat");
+        gotoxy(30,22);
+        cout<<"Record Deleted!!!";
+    }    
     getch();
 }
 
@@ -438,7 +441,7 @@ void emp_list()
 /*
  ________________________________
 |MAIN MENUE FUNCTION DEFINITION  |
-|________________________________|
+|________________________________| 
 
 */
 
@@ -461,7 +464,7 @@ void mainMenu()
     gotoxy(25,15); 
     cout<<"5. Display Employee List";
     gotoxy(25,17);
-    cout<<"6. <---Back to Previous Menu";
+    cout<<"6. Back to Previous Menu";
     gotoxy(25,22);
     cout<<"Please Enter Your Choice (1-6) ";
     ch2=getche();
@@ -478,8 +481,9 @@ void mainMenu()
         gotoxy(10,5);
         cout<<"Enter employee ID to Search : ";
         cin>>num;
+        bool temp;
         system("cls");
-        searchEmp(num);
+        temp=search_Emp(num);
         break;
     case '3':
         modifyEmployee();
@@ -513,7 +517,7 @@ void menue()
         gotoxy(27,9);
         cout<<"PAYROLL MANAGEMENT SYSTEM";
         gotoxy(30,11);
-        cout<<"1. ENTER MAIN NEMUE";
+        cout<<"1. ENTER MAIN MEMUE";
         gotoxy(30,13);
         cout<<"2. EXIT";
         gotoxy(27,15);
@@ -538,6 +542,5 @@ int main()
 {
     user_login lobj;
     lobj.login();
-
     menue();
 }
